@@ -13,7 +13,7 @@ export abstract class Constants {
 
     // 服务器地址
     public static readonly ASSETS_ADDRESS: string = "https://assets.b3logfile.com/siyuan/";
-    public static readonly PROTYLE_CDN: string = "/stage/protyle";
+    public static readonly PROTYLE_CDN: string = "/thesaurus/stage/protyle";
     public static readonly UPLOAD_ADDRESS: string = "/upload";
 
     // drop 事件

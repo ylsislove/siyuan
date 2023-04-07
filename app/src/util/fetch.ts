@@ -27,7 +27,7 @@ export const fetchPost = (url: string, data?: any, cb?: (response: IWebSocketDat
     if (headers) {
         init.headers = headers;
     }
-    fetch(url, init).then((response) => {
+    fetch("/thesaurus"+url, init).then((response) => {
         return response.json();
     }).then((response: IWebSocketData) => {
         if (["/api/search/searchRefBlock", "/api/graph/getGraph", "/api/graph/getLocalGraph"].includes(url)) {
@@ -61,14 +61,14 @@ export const fetchSyncPost = async (url: string, data?: any) => {
     if (data) {
         init.body = JSON.stringify(data);
     }
-    const res = await fetch(url, init);
+    const res = await fetch("/thesaurus"+url, init);
     const res2 = await res.json() as IWebSocketData;
     processMessage(res2);
     return res2;
 };
 
 export const fetchGet = (url: string, cb: (response: IWebSocketData | IEmoji[]) => void) => {
-    fetch(url).then((response) => {
+    fetch("/thesaurus"+url).then((response) => {
         return response.json();
     }).then((response: IWebSocketData) => {
         cb(response);

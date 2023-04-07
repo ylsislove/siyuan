@@ -16,7 +16,7 @@ const loadThirdIcon = (iconURL: string, data: IAppearance) => {
             if (iconScriptElement) {
                 iconScriptElement.remove();
             }
-            addScript(`/appearance/icons/${data.icon}/icon.js?v=${data.iconVer}`, "iconScript");
+            addScript(`/thesaurus/appearance/icons/${data.icon}/icon.js?v=${data.iconVer}`, "iconScript");
         }
     });
 };
@@ -37,9 +37,9 @@ export const loadAssets = (data: IAppearance) => {
     }
 
     const defaultStyleElement = document.getElementById("themeDefaultStyle");
-    let defaultThemeAddress = `/appearance/themes/${data.mode === 1 ? "midnight" : "daylight"}/${data.customCSS ? "custom" : "theme"}.css?v=${data.customCSS ? new Date().getTime() : Constants.SIYUAN_VERSION}`;
+    let defaultThemeAddress = `/thesaurus/appearance/themes/${data.mode === 1 ? "midnight" : "daylight"}/${data.customCSS ? "custom" : "theme"}.css?v=${data.customCSS ? new Date().getTime() : Constants.SIYUAN_VERSION}`;
     if ((data.mode === 1 && data.themeDark !== "midnight") || (data.mode === 0 && data.themeLight !== "daylight")) {
-        defaultThemeAddress = `/appearance/themes/${data.mode === 1 ? "midnight" : "daylight"}/theme.css?v=${Constants.SIYUAN_VERSION}`;
+        defaultThemeAddress = `/thesaurus/appearance/themes/${data.mode === 1 ? "midnight" : "daylight"}/theme.css?v=${Constants.SIYUAN_VERSION}`;
     }
     if (defaultStyleElement) {
         if (!defaultStyleElement.getAttribute("href").startsWith(defaultThemeAddress)) {
@@ -51,7 +51,7 @@ export const loadAssets = (data: IAppearance) => {
     }
     const styleElement = document.getElementById("themeStyle");
     if ((data.mode === 1 && data.themeDark !== "midnight") || (data.mode === 0 && data.themeLight !== "daylight")) {
-        const themeAddress = `/appearance/themes/${data.mode === 1 ? data.themeDark : data.themeLight}/${data.customCSS ? "custom" : "theme"}.css?v=${data.customCSS ? new Date().getTime() : data.themeVer}`;
+        const themeAddress = `/thesaurus/appearance/themes/${data.mode === 1 ? data.themeDark : data.themeLight}/${data.customCSS ? "custom" : "theme"}.css?v=${data.customCSS ? new Date().getTime() : data.themeVer}`;
         if (styleElement) {
             if (!styleElement.getAttribute("href").startsWith(themeAddress)) {
                 styleElement.remove();
@@ -86,7 +86,7 @@ export const loadAssets = (data: IAppearance) => {
     setCodeTheme();
 
     const themeScriptElement = document.getElementById("themeScript");
-    const themeScriptAddress = `/appearance/themes/${data.mode === 1 ? data.themeDark : data.themeLight}/theme.js?v=${data.themeVer}`;
+    const themeScriptAddress = `/thesaurus/appearance/themes/${data.mode === 1 ? data.themeDark : data.themeLight}/theme.js?v=${data.themeVer}`;
     if (themeScriptElement) {
         if (!themeScriptElement.getAttribute("src").startsWith(themeScriptAddress)) {
             themeScriptElement.remove();
@@ -98,7 +98,7 @@ export const loadAssets = (data: IAppearance) => {
 
     const iconDefaultScriptElement = document.getElementById("iconDefaultScript");
     // 不能使用 data.iconVer，因为其他主题也需要加载默认图标，此时 data.iconVer 为其他图标的版本号
-    const iconURL = `/appearance/icons/${["ant", "material"].includes(data.icon) ? data.icon : "material"}/icon.js?v=${Constants.SIYUAN_VERSION}`;
+    const iconURL = `/thesaurus/appearance/icons/${["ant", "material"].includes(data.icon) ? data.icon : "material"}/icon.js?v=${Constants.SIYUAN_VERSION}`;
     if (iconDefaultScriptElement) {
         iconDefaultScriptElement.remove();
         let svgElement = document.body.firstElementChild;
@@ -119,7 +119,7 @@ export const initAssets = () => {
     const emojiElement = document.getElementById("emojiScript");
     const loadingElement = document.getElementById("loading");
     if (!emojiElement && !window.siyuan.config.appearance.nativeEmoji && !isMobile()) {
-        addScript("/appearance/emojis/twitter-emoji.js?v=1.0.1", "emojiScript").then(() => {
+        addScript("/thesaurus/appearance/emojis/twitter-emoji.js?v=1.0.1", "emojiScript").then(() => {
             if (loadingElement) {
                 loadingElement.remove();
             }

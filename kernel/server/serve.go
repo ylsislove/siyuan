@@ -196,15 +196,22 @@ func serveAppearance(ginServer *gin.Engine) {
 			return
 		}
 
-		c.Redirect(302, "/stage/build/desktop/?r="+gulu.Rand.String(7))
+		c.Redirect(302, "/thesaurus/stage/build/desktop/?r="+gulu.Rand.String(7))
+	})
+
+	siyuan.Handle("GET", "/stage/loading-pure.svg", func(c *gin.Context) {
+		c.Redirect(302, "/thesaurus/stage/loading-pure.svg")
+	})
+	siyuan.Handle("GET", "/stage/icon.png", func(c *gin.Context) {
+		c.Redirect(302, "/thesaurus/stage/icon.png")
 	})
 
 	appearancePath := util.AppearancePath
 	if "dev" == util.Mode {
 		appearancePath = filepath.Join(util.WorkingDir, "appearance")
 	}
-	siyuan.GET("/appearance/*filepath", func(c *gin.Context) {
-		filePath := filepath.Join(appearancePath, strings.TrimPrefix(c.Request.URL.Path, "/appearance/"))
+	siyuan.GET("/thesaurus/appearance/*filepath", func(c *gin.Context) {
+		filePath := filepath.Join(appearancePath, strings.TrimPrefix(c.Request.URL.Path, "/thesaurus/appearance/"))
 		if strings.HasSuffix(c.Request.URL.Path, "/theme.js") {
 			if !gulu.File.IsExist(filePath) {
 				// 主题 js 不存在时生成空内容返回
@@ -259,10 +266,10 @@ func serveAppearance(ginServer *gin.Engine) {
 		c.File(filePath)
 	})
 
-	siyuan.Static("/stage/", filepath.Join(util.WorkingDir, "stage"))
+	siyuan.Static("/thesaurus/stage/", filepath.Join(util.WorkingDir, "stage"))
 	siyuan.StaticFile("favicon.ico", filepath.Join(util.WorkingDir, "stage", "icon.png"))
 
-	siyuan.GET("/check-auth", serveCheckAuth)
+	siyuan.GET("/thesaurus/check-auth", serveCheckAuth)
 }
 
 func serveCheckAuth(c *gin.Context) {
@@ -342,7 +349,7 @@ func serveDebug(ginServer *gin.Engine) {
 func serveWebSocket(ginServer *gin.Engine) {
 	util.WebSocketServer.Config.MaxMessageSize = 1024 * 1024 * 8
 
-	ginServer.GET("/ws", func(c *gin.Context) {
+	ginServer.GET("/thesaurus/ws", func(c *gin.Context) {
 		if err := util.WebSocketServer.HandleRequest(c.Writer, c.Request); nil != err {
 			logging.LogErrorf("handle command failed: %s", err)
 		}
