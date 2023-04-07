@@ -183,7 +183,7 @@ func serveTemplates(ginServer *gin.Engine) {
 func serveAppearance(ginServer *gin.Engine) {
 	siyuan := ginServer.Group("", model.CheckAuth)
 
-	siyuan.Handle("GET", "/", func(c *gin.Context) {
+	siyuan.Handle("GET", "/thesaurus", func(c *gin.Context) {
 		userAgentHeader := c.GetHeader("User-Agent")
 		if strings.Contains(userAgentHeader, "Electron") {
 			c.Redirect(302, "/stage/build/app/?r="+gulu.Rand.String(7))
