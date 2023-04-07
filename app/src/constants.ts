@@ -5,15 +5,17 @@ declare const NODE_ENV: string;
 
 const _SIYUAN_VERSION = SIYUAN_VERSION;
 const _NODE_ENV = NODE_ENV;
+const _PUBLIC_PATH = process.env.PUBLIC_PATH;
 
 export abstract class Constants {
     public static readonly SIYUAN_VERSION: string = _SIYUAN_VERSION;
     public static readonly NODE_ENV: string = _NODE_ENV;
+    public static readonly PUBLIC_PATH: string = _PUBLIC_PATH;
     public static readonly SIYUAN_APPID: string = Math.random().toString(36).substring(8);
 
     // 服务器地址
     public static readonly ASSETS_ADDRESS: string = "https://assets.b3logfile.com/siyuan/";
-    public static readonly PROTYLE_CDN: string = "/thesaurus/stage/protyle";
+    public static readonly PROTYLE_CDN: string = _PUBLIC_PATH+"/stage/protyle";
     public static readonly UPLOAD_ADDRESS: string = "/upload";
 
     // drop 事件

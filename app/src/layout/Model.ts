@@ -24,7 +24,7 @@ export class Model {
     }
 
     private connect(options: { id: string, type?: TWS, callback?: () => void, msgCallback?: (data: IWebSocketData) => void }) {
-        const websocketURL = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/thesaurus/ws`;
+        const websocketURL = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}${Constants.PUBLIC_PATH}/ws`;
         const ws = new WebSocket(`${websocketURL}?app=${Constants.SIYUAN_APPID}&id=${options.id}${options.type ? "&type=" + options.type : ""}`);
         ws.onopen = () => {
             if (options.callback) {

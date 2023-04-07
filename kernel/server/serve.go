@@ -199,15 +199,6 @@ func serveAppearance(ginServer *gin.Engine) {
 
 			c.Redirect(302, model.Conf.PublicPath+"/stage/build/desktop/?r="+gulu.Rand.String(7))
 		})
-
-		siyuan.Handle("GET", "/stage/loading-pure.svg", func(c *gin.Context) {
-			c.Redirect(302, model.Conf.PublicPath+"/stage/loading-pure.svg")
-		})
-
-		siyuan.Handle("GET", "/stage/icon.png", func(c *gin.Context) {
-			c.Redirect(302, model.Conf.PublicPath+"/stage/icon.png")
-		})
-
 	} else {
 		siyuan.Handle("GET", "/", func(c *gin.Context) {
 			userAgentHeader := c.GetHeader("User-Agent")

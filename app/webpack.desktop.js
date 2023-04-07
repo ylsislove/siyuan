@@ -109,6 +109,7 @@ module.exports = (env, argv) => {
             new webpack.DefinePlugin({
                 SIYUAN_VERSION: JSON.stringify(pkg.version),
                 NODE_ENV: JSON.stringify(argv.mode),
+                "process.env.PUBLIC_PATH": JSON.stringify(process.env.publicPath || "")
             }),
             new MiniCssExtractPlugin({
                 filename: "base.[contenthash].css",
