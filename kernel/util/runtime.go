@@ -58,8 +58,9 @@ func logBootInfo() {
 		"    * read only [%v]\n"+
 		"    * container [%s]\n"+
 		"    * database [ver=%s]\n"+
-		"    * workspace directory [%s]",
-		Ver, runtime.GOARCH, plat, os.Getpid(), Mode, WorkingDir, ReadOnly, Container, DatabaseVer, WorkspaceDir)
+		"    * workspace directory [%s]\n"+
+		"    * public path [%s]",
+		Ver, runtime.GOARCH, plat, os.Getpid(), Mode, WorkingDir, ReadOnly, Container, DatabaseVer, WorkspaceDir, PublicPath)
 }
 
 func IsMutexLocked(m *sync.Mutex) bool {

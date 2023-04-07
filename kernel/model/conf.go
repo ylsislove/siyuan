@@ -345,6 +345,7 @@ func InitConf() {
 	}
 
 	Conf.ReadOnly = util.ReadOnly
+	Conf.PublicPath = util.PublicPath
 
 	if "" != util.AccessAuthCode {
 		Conf.AccessAuthCode = util.AccessAuthCode

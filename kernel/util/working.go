@@ -67,6 +67,7 @@ func Boot() {
 	ssl := flag.Bool("ssl", false, "for https and wss")
 	lang := flag.String("lang", "", "zh_CN/zh_CHT/en_US/fr_FR/es_ES")
 	mode := flag.String("mode", "prod", "dev/prod")
+	publicPath := flag.String("publicPath", "", "public path of the HTTP server")
 	flag.Parse()
 
 	if "" != *wdPath {
@@ -79,6 +80,7 @@ func Boot() {
 	ServerPort = *port
 	ReadOnly, _ = strconv.ParseBool(*readOnly)
 	AccessAuthCode = *accessAuthCode
+	PublicPath = *publicPath
 	Container = ContainerStd
 	if isRunningInDockerContainer() {
 		Container = ContainerDocker
@@ -314,6 +316,7 @@ var (
 	ReadOnly       bool
 	AccessAuthCode string
 	Lang           = ""
+	PublicPath     string
 
 	Container        string // docker, android, ios, std
 	ISMicrosoftStore bool   // 桌面端是否是微软商店版
