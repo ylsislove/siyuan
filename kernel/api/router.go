@@ -23,7 +23,7 @@ import (
 
 func ServeAPI(ginServer *gin.Engine) {
 
-	ginServerGroup := ginServer.Group("/thesaurus")
+	ginServerGroup := ginServer.Group(model.Conf.PublicPath)
 
 	// 不需要鉴权
 

@@ -183,35 +183,55 @@ func serveTemplates(ginServer *gin.Engine) {
 func serveAppearance(ginServer *gin.Engine) {
 	siyuan := ginServer.Group("", model.CheckAuth)
 
-	siyuan.Handle("GET", "/thesaurus", func(c *gin.Context) {
-		userAgentHeader := c.GetHeader("User-Agent")
-		if strings.Contains(userAgentHeader, "Electron") {
-			c.Redirect(302, "/stage/build/app/?r="+gulu.Rand.String(7))
-			return
-		}
+	if model.Conf.PublicPath != "" {
+		siyuan.Handle("GET", model.Conf.PublicPath, func(c *gin.Context) {
+			userAgentHeader := c.GetHeader("User-Agent")
+			if strings.Contains(userAgentHeader, "Electron") {
+				c.Redirect(302, model.Conf.PublicPath+"/stage/build/app/?r="+gulu.Rand.String(7))
+				return
+			}
 
-		ua := user_agent.New(userAgentHeader)
-		if ua.Mobile() {
-			c.Redirect(302, "/stage/build/mobile/?r="+gulu.Rand.String(7))
-			return
-		}
+			ua := user_agent.New(userAgentHeader)
+			if ua.Mobile() {
+				c.Redirect(302, model.Conf.PublicPath+"/stage/build/mobile/?r="+gulu.Rand.String(7))
+				return
+			}
 
-		c.Redirect(302, "/thesaurus/stage/build/desktop/?r="+gulu.Rand.String(7))
-	})
+			c.Redirect(302, model.Conf.PublicPath+"/stage/build/desktop/?r="+gulu.Rand.String(7))
+		})
 
-	siyuan.Handle("GET", "/stage/loading-pure.svg", func(c *gin.Context) {
-		c.Redirect(302, "/thesaurus/stage/loading-pure.svg")
-	})
-	siyuan.Handle("GET", "/stage/icon.png", func(c *gin.Context) {
-		c.Redirect(302, "/thesaurus/stage/icon.png")
-	})
+		siyuan.Handle("GET", "/stage/loading-pure.svg", func(c *gin.Context) {
+			c.Redirect(302, model.Conf.PublicPath+"/stage/loading-pure.svg")
+		})
+
+		siyuan.Handle("GET", "/stage/icon.png", func(c *gin.Context) {
+			c.Redirect(302, model.Conf.PublicPath+"/stage/icon.png")
+		})
+
+	} else {
+		siyuan.Handle("GET", "/", func(c *gin.Context) {
+			userAgentHeader := c.GetHeader("User-Agent")
+			if strings.Contains(userAgentHeader, "Electron") {
+				c.Redirect(302, "/stage/build/app/?r="+gulu.Rand.String(7))
+				return
+			}
+
+			ua := user_agent.New(userAgentHeader)
+			if ua.Mobile() {
+				c.Redirect(302, "/stage/build/mobile/?r="+gulu.Rand.String(7))
+				return
+			}
+
+			c.Redirect(302, "/stage/build/desktop/?r="+gulu.Rand.String(7))
+		})
+	}
 
 	appearancePath := util.AppearancePath
 	if "dev" == util.Mode {
 		appearancePath = filepath.Join(util.WorkingDir, "appearance")
 	}
-	siyuan.GET("/thesaurus/appearance/*filepath", func(c *gin.Context) {
-		filePath := filepath.Join(appearancePath, strings.TrimPrefix(c.Request.URL.Path, "/thesaurus/appearance/"))
+	siyuan.GET(model.Conf.PublicPath+"/appearance/*filepath", func(c *gin.Context) {
+		filePath := filepath.Join(appearancePath, strings.TrimPrefix(c.Request.URL.Path, model.Conf.PublicPath+"/appearance/"))
 		if strings.HasSuffix(c.Request.URL.Path, "/theme.js") {
 			if !gulu.File.IsExist(filePath) {
 				// 主题 js 不存在时生成空内容返回
@@ -266,10 +286,10 @@ func serveAppearance(ginServer *gin.Engine) {
 		c.File(filePath)
 	})
 
-	siyuan.Static("/thesaurus/stage/", filepath.Join(util.WorkingDir, "stage"))
+	siyuan.Static(model.Conf.PublicPath+"/stage/", filepath.Join(util.WorkingDir, "stage"))
 	siyuan.StaticFile("favicon.ico", filepath.Join(util.WorkingDir, "stage", "icon.png"))
 
-	siyuan.GET("/thesaurus/check-auth", serveCheckAuth)
+	siyuan.GET(model.Conf.PublicPath+"/check-auth", serveCheckAuth)
 }
 
 func serveCheckAuth(c *gin.Context) {
@@ -349,7 +369,7 @@ func serveDebug(ginServer *gin.Engine) {
 func serveWebSocket(ginServer *gin.Engine) {
 	util.WebSocketServer.Config.MaxMessageSize = 1024 * 1024 * 8
 
-	ginServer.GET("/thesaurus/ws", func(c *gin.Context) {
+	ginServer.GET(model.Conf.PublicPath+"/ws", func(c *gin.Context) {
 		if err := util.WebSocketServer.HandleRequest(c.Writer, c.Request); nil != err {
 			logging.LogErrorf("handle command failed: %s", err)
 		}

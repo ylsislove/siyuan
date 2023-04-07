@@ -76,6 +76,7 @@ type AppConf struct {
 	Repo           *conf.Repo       `json:"repo"`           // 数据仓库
 	OpenHelp       bool             `json:"openHelp"`       // 启动后是否需要打开用户指南
 	ShowChangelog  bool             `json:"showChangelog"`  // 是否显示版本更新日志
+	PublicPath     string           `json:"publicPath"`     // 公共资源路径
 }
 
 func InitConf() {
