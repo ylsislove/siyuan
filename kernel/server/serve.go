@@ -325,7 +325,7 @@ func serveCheckAuth(c *gin.Context) {
 func serveAssets(ginServer *gin.Engine) {
 	ginServer.POST("/upload", model.CheckAuth, model.Upload)
 
-	ginServer.GET("/assets/*path", model.CheckAuth, func(context *gin.Context) {
+	ginServer.GET(model.Conf.PublicPath+"/assets/*path", model.CheckAuth, func(context *gin.Context) {
 		requestPath := context.Param("path")
 		relativePath := path.Join("assets", requestPath)
 		p, err := model.GetAssetAbsPath(relativePath)
