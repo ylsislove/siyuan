@@ -144,6 +144,8 @@
     @include text-clamp(1);
     flex: 1;
     font-size: 17px;
+    min-height: 30px;
+    line-height: 30px;
   }
 }
 
@@ -174,6 +176,8 @@
 }
 
 #model {
+  box-sizing: border-box;
+
   .config-about__logo {
     display: flex;
     align-items: center;
@@ -229,6 +233,7 @@
       width: 100%;
       box-sizing: border-box;
       padding: 16px;
+      margin-top: 10vh;
     }
 
     &__name {
@@ -241,9 +246,9 @@
 }
 
 #menu {
-  transition: transform 0.15s cubic-bezier(0, 0, 0.2, 1) 0ms;
   z-index: 220;
   transform: translateX(100vw);
+  top: 0;
 }
 
 .keyboard {
@@ -253,7 +258,7 @@
   box-sizing: border-box;
   height: 42px;
   background: var(--b3-theme-background);
-  z-index: 222;
+  z-index: 306;
   display: flex;
   border-top: 1px solid var(--b3-theme-surface-lighter);
   overflow: hidden;
@@ -335,7 +340,7 @@
       align-items: center;
       margin-right: 8px;
       position: relative;
-      box-shadow: inset 0 0 0 .4px var(--b3-theme-on-surface-light);
+      box-shadow: inset 0 0 0 .6px var(--b3-theme-on-surface-light);
     }
 
     &-empty {
@@ -430,10 +435,27 @@
   display: block;
 }
 
+.protyle {
+  &-util {
+    .color__square {
+      height: 24px;
+      width: 24px;
+    }
+  }
+
+  &-font {
+    font-size: 14px;
+  }
+}
+
 @media (max-width: 620px) {
   .protyle-wysiwyg [data-node-id].sb[data-sb-layout="col"] {
     flex-direction: column;
     flex-wrap: initial;
+
+    & > div {
+      margin-right: 0;
+    }
   }
 }
 

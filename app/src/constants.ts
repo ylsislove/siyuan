@@ -22,6 +22,7 @@ export abstract class Constants {
     public static readonly ASSETS_ADDRESS: string = "https://assets.b3logfile.com/siyuan/";
     public static readonly PROTYLE_CDN: string = publicPath+"/stage/protyle";
     public static readonly UPLOAD_ADDRESS: string = "/upload";
+    public static readonly SERVICE_WORKER_PATH: string = "/service-worker.js";
 
     // drop 事件
     public static readonly SIYUAN_DROP_FILE: string = "application/siyuan-file";
@@ -43,8 +44,10 @@ export abstract class Constants {
     public static readonly SIYUAN_EXPORT_PDF: string = "siyuan-export-pdf";
     public static readonly SIYUAN_EXPORT_CLOSE: string = "siyuan-export-close";
     public static readonly SIYUAN_EXPORT_PREVENT: string = "siyuan-export-prevent";
+    public static readonly SIYUAN_AUTO_LAUNCH: string = "siyuan-auto-launch";
 
     // size
+    public static readonly SIZE_LINK_TEXT_MAX: number = 24;
     public static readonly SIZE_TOOLBAR_HEIGHT: number = isMobile() ? 0 : 32;
     public static readonly SIZE_GET_MAX = 102400;
     public static readonly SIZE_UNDO = 64;
@@ -119,7 +122,7 @@ export abstract class Constants {
     };
     // 冲突不使用 "⌘S/Q"
     // "⌘", "⇧", "⌥", "⌃"
-    // "⌘A", "⌘X", "⌘C", "⌘V", "⇧⌘V", "⌘/", "⇧↑", "⇧↓", "⇧→", "⇧←", "⇧⇥", "⇧⌘⇥", "⌃⇥", "⌘⇥", "⌃⌘⇥", "⇧⌘→", "⇧⌘←",
+    // "⌘A", "⌘X", "⌘C", "⌘V", "⌘-", "⌘=", "⌘0", "⇧⌘V", "⌘/", "⇧↑", "⇧↓", "⇧→", "⇧←", "⇧⇥", "⇧⌘⇥", "⌃⇥", "⌘⇥", "⌃⌘⇥", "⇧⌘→", "⇧⌘←",
     // "⌘Home", "⌘End", "⇧↩", "↩", "PageUp", "PageDown", "⌫", "⌦" 不可自定义
     public static readonly SIYUAN_KEYMAP: IKeymap = {
         general: {
@@ -187,6 +190,7 @@ export abstract class Constants {
                 outline: {default: "⌥O", custom: "⌥O"},
                 backlinks: {default: "⌥B", custom: "⌥B"},
                 graphView: {default: "⌥G", custom: "⌥G"},
+                spaceRepetition: {default: "⌥F", custom: "⌥F"},
                 fullscreen: {default: "⌥Y", custom: "⌥Y"},
                 alignLeft: {default: "⌥L", custom: "⌥L"},
                 alignCenter: {default: "⌥C", custom: "⌥C"},

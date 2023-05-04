@@ -10,17 +10,18 @@ import {disabledForeverProtyle, disabledProtyle, enableProtyle} from "../../prot
 import {setStorageVal} from "../../protyle/util/compatibility";
 import {closePanel} from "./closePanel";
 import {showMessage} from "../../dialog/message";
+import {getCurrentEditor} from "../editor";
 
 const forwardStack: IBackStack[] = [];
 
 const focusStack = (backStack: IBackStack) => {
-    const protyle = window.siyuan.mobile.editor.protyle;
+    const protyle = getCurrentEditor().protyle;
     window.siyuan.storage[Constants.LOCAL_DOCINFO] = {
         id: backStack.id,
         action: backStack.callback,
     };
     setStorageVal(Constants.LOCAL_DOCINFO, window.siyuan.storage[Constants.LOCAL_DOCINFO]);
-    hideElements(["toolbar", "hint", "util"], window.siyuan.mobile.editor.protyle);
+    hideElements(["toolbar", "hint", "util"], protyle);
     if (protyle.contentElement.classList.contains("fn__none")) {
         setEditMode(protyle, "wysiwyg");
     }
@@ -28,7 +29,7 @@ const focusStack = (backStack: IBackStack) => {
     const startEndId = backStack.endId.split(Constants.ZWSP);
     if (startEndId[0] === protyle.wysiwyg.element.firstElementChild.getAttribute("data-node-id") &&
         startEndId[1] === protyle.wysiwyg.element.lastElementChild.getAttribute("data-node-id")) {
-        window.siyuan.mobile.editor.protyle.contentElement.scrollTo({
+        protyle.contentElement.scrollTo({
             top: backStack.scrollTop,
             behavior: "smooth"
         });
@@ -83,12 +84,12 @@ const focusStack = (backStack: IBackStack) => {
             }
         }
         protyle.contentElement.scrollTop = backStack.scrollTop;
-        window.siyuan.mobile.editor.protyle.breadcrumb?.render(protyle);
+        protyle.breadcrumb?.render(protyle);
     });
 };
 
 export const pushBack = () => {
-    const protyle = window.siyuan.mobile.editor.protyle;
+    const protyle = getCurrentEditor().protyle;
     window.siyuan.backStack.push({
         id: protyle.block.showAll ? protyle.block.id : protyle.block.rootID,
         endId: protyle.wysiwyg.element.firstElementChild.getAttribute("data-node-id") + Constants.ZWSP + protyle.wysiwyg.element.lastElementChild.getAttribute("data-node-id"),
@@ -121,6 +122,7 @@ export const goForward = () => {
 };
 
 export const goBack = () => {
+    const editor = getCurrentEditor();
     if (window.siyuan.menus.menu.element.classList.contains("b3-menu--fullscreen") &&
         !window.siyuan.menus.menu.element.classList.contains("fn__none")) {
         window.siyuan.menus.menu.element.dispatchEvent(new CustomEvent("click", {detail: "back"}));
@@ -128,8 +130,19 @@ export const goBack = () => {
     } else if (document.getElementById("model").style.transform === "translateY(0px)") {
         document.getElementById("model").style.transform = "";
         return;
+    } else if (window.siyuan.viewer && !window.siyuan.viewer.destroyed) {
+        window.siyuan.viewer.destroy();
+        return;
     } else if (document.getElementById("menu").style.transform === "translateX(0px)" ||
         document.getElementById("sidebar").style.transform === "translateX(0px)") {
+        closePanel();
+        return;
+    } else if (editor && !editor.protyle.toolbar.subElement.classList.contains("fn__none")) {
+        hideElements(["util"], editor.protyle);
+        closePanel();
+        return;
+    } else if (window.siyuan.dialogs.length !== 0) {
+        hideElements(["dialog"]);
         closePanel();
         return;
     }
@@ -144,8 +157,8 @@ export const goBack = () => {
     if (window.siyuan.backStack.length < 1) {
         return;
     }
-    const protyle = window.siyuan.mobile.editor.protyle;
-    if (forwardStack.length === 0) {
+    if (forwardStack.length === 0 && editor) {
+        const protyle = editor.protyle;
         forwardStack.push({
             id: protyle.block.showAll ? protyle.block.id : protyle.block.rootID,
             endId: protyle.wysiwyg.element.firstElementChild.getAttribute("data-node-id") + Constants.ZWSP + protyle.wysiwyg.element.lastElementChild.getAttribute("data-node-id"),

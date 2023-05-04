@@ -100,9 +100,6 @@ class App {
                                 progressBackgroundTask(data.data.tasks);
                                 break;
                             case "refreshtheme":
-                                if (!window.siyuan.config.appearance.customCSS && data.data.theme.indexOf("custom.css") > -1) {
-                                    return;
-                                }
                                 if ((window.siyuan.config.appearance.mode === 1 && window.siyuan.config.appearance.themeDark !== "midnight") || (window.siyuan.config.appearance.mode === 0 && window.siyuan.config.appearance.themeLight !== "daylight")) {
                                     (document.getElementById("themeStyle") as HTMLLinkElement).href = data.data.theme;
                                 } else {
@@ -119,13 +116,13 @@ class App {
                     }
                 }
             }),
-            menus: new Menus()
         };
         fetchPost("/api/system/getConf", {}, response => {
             window.siyuan.config = response.data.conf;
             getLocalStorage(() => {
                 fetchGet(`/appearance/langs/${window.siyuan.config.appearance.lang}.json?v=${Constants.SIYUAN_VERSION}`, (lauguages) => {
                     window.siyuan.languages = lauguages;
+                    window.siyuan.menus = new Menus();
                     fetchPost("/api/setting/getCloudUser", {}, userResponse => {
                         window.siyuan.user = userResponse.data;
                         init();

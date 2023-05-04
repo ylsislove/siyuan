@@ -47,7 +47,7 @@ export const openWechatNotify = (nodeElement: Element) => {
         reminderFormat = dayjs(reminder).format("YYYY-MM-DDTHH:mm");
     }
     const dialog = new Dialog({
-        width: isMobile() ? "80vw" : "50vw",
+        width: isMobile() ? "92vw" : "50vw",
         title: window.siyuan.languages.wechatReminder,
         content: `<div class="b3-dialog__content custom-attr">
     <div class="fn__flex">
@@ -112,7 +112,7 @@ export const openFileWechatNotify = (protyle: IProtyle) => {
             reminderFormat = dayjs(reminder).format("YYYY-MM-DDTHH:mm");
         }
         const dialog = new Dialog({
-            width: isMobile() ? "80vw" : "50vw",
+            width: isMobile() ? "92vw" : "50vw",
             title: window.siyuan.languages.wechatReminder,
             content: `<div class="b3-dialog__content custom-attr">
     <div class="fn__flex">
@@ -183,7 +183,7 @@ const genAttr = (attrs: IObject, focusName = "bookmark", cb: (dialog: Dialog, rm
         }
     });
     const dialog = new Dialog({
-        width: isMobile() ? "94vw" : "50vw",
+        width: isMobile() ? "92vw" : "50vw",
         title: window.siyuan.languages.attr,
         content: `<div class="custom-attr" style="max-height: calc(100vh - 166px);overflow: auto;">
     <label class="b3-label b3-label--noborder">
@@ -437,60 +437,68 @@ export const openAttr = (nodeElement: Element, protyle: IProtyle, focusName = "b
 };
 
 export const copySubMenu = (id: string, accelerator = true, focusElement?: Element) => {
-    return [
-        {
-            icon: "iconRef",
-            accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyBlockRef.custom : undefined,
-            label: window.siyuan.languages.copyBlockRef,
-            click: () => {
-                fetchPost("/api/block/getRefText", {id}, (response) => {
-                    writeText(`((${id} '${response.data}'))`);
-                });
-                if (focusElement) {
-                    focusBlock(focusElement);
-                }
-            }
-        }, {
-            icon: "iconSQL",
-            label: window.siyuan.languages.copyBlockEmbed,
-            accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyBlockEmbed.custom : undefined,
-            click: () => {
-                writeText(`{{select * from blocks where id='${id}'}}`);
-                if (focusElement) {
-                    focusBlock(focusElement);
-                }
-            }
-        }, {
-            icon: "iconSiYuan",
-            label: window.siyuan.languages.copyProtocol,
-            accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyProtocol.custom : undefined,
-            click: () => {
-                writeText(`siyuan://blocks/${id}`);
-                if (focusElement) {
-                    focusBlock(focusElement);
-                }
-            }
-        }, {
-            label: window.siyuan.languages.copyHPath,
-            accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyHPath.custom : undefined,
-            click: () => {
-                fetchPost("/api/filetree/getHPathByID", {
-                    id
-                }, (response) => {
-                    writeText(response.data);
-                });
-            }
-        }, {
-            label: window.siyuan.languages.copyID,
-            accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyID.custom : undefined,
-            click: () => {
-                writeText(id);
-                if (focusElement) {
-                    focusBlock(focusElement);
-                }
+    return [{
+        icon: "iconRef",
+        accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyBlockRef.custom : undefined,
+        label: window.siyuan.languages.copyBlockRef,
+        click: () => {
+            fetchPost("/api/block/getRefText", {id}, (response) => {
+                writeText(`((${id} '${response.data}'))`);
+            });
+            if (focusElement) {
+                focusBlock(focusElement);
             }
         }
-    ];
+    }, {
+        icon: "iconSQL",
+        label: window.siyuan.languages.copyBlockEmbed,
+        accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyBlockEmbed.custom : undefined,
+        click: () => {
+            writeText(`{{select * from blocks where id='${id}'}}`);
+            if (focusElement) {
+                focusBlock(focusElement);
+            }
+        }
+    }, {
+        icon: "iconSiYuan",
+        label: window.siyuan.languages.copyProtocol,
+        accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyProtocol.custom : undefined,
+        click: () => {
+            writeText(`siyuan://blocks/${id}`);
+            if (focusElement) {
+                focusBlock(focusElement);
+            }
+        }
+    }, {
+        label: window.siyuan.languages.copyProtocolInMd,
+        click: () => {
+            fetchPost("/api/block/getRefText", {id}, (response) => {
+                writeText(`[${response.data.substring(0, Constants.SIZE_LINK_TEXT_MAX)}](siyuan://blocks/${id})`);
+            });
+            if (focusElement) {
+                focusBlock(focusElement);
+            }
+        }
+    }, {
+        label: window.siyuan.languages.copyHPath,
+        accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyHPath.custom : undefined,
+        click: () => {
+            fetchPost("/api/filetree/getHPathByID", {
+                id
+            }, (response) => {
+                writeText(response.data);
+            });
+        }
+    }, {
+        label: window.siyuan.languages.copyID,
+        accelerator: accelerator ? window.siyuan.config.keymap.editor.general.copyID.custom : undefined,
+        click: () => {
+            writeText(id);
+            if (focusElement) {
+                focusBlock(focusElement);
+            }
+        }
+    }];
 };
 
 export const exportMd = (id: string) => {

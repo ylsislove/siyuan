@@ -8,12 +8,14 @@ import {account} from "./config/account";
 import {addScript, addScriptSync} from "./protyle/util/addScript";
 import {genUUID} from "./util/genID";
 import {fetchGet, fetchPost} from "./util/fetch";
-import {addBaseURL, setNoteBook} from "./util/pathName";
+import {addBaseURL, getIdFromSYProtocol, isSYProtocol, setNoteBook} from "./util/pathName";
+import {registerServiceWorker} from "./util/serviceWorker";
 import {openFileById} from "./editor/util";
 import {
     bootSync,
     downloadProgress,
-    processSync, progressBackgroundTask,
+    processSync,
+    progressBackgroundTask,
     progressLoading,
     progressStatus,
     setTitle,
@@ -26,9 +28,13 @@ import {getAllTabs} from "./layout/getAll";
 import {getLocalStorage} from "./protyle/util/compatibility";
 import {updateEditModeElement} from "./layout/topBar";
 import {getSearch} from "./util/functions";
+import {hideAllElements} from "./protyle/ui/hideElements";
 
 class App {
     constructor() {
+        /// #if BROWSER
+        registerServiceWorker(`${Constants.SERVICE_WORKER_PATH}?v=${Constants.SIYUAN_VERSION}`);
+        /// #endif
         addScriptSync(`${Constants.PROTYLE_CDN}/js/lute/lute.min.js?v=${Constants.SIYUAN_VERSION}`, "protyleLuteScript");
         addScript(`${Constants.PROTYLE_CDN}/js/protyle-html.js?v=${Constants.SIYUAN_VERSION}`, "protyleWcHtmlScript");
         addBaseURL();
@@ -50,6 +56,7 @@ class App {
                             case "readonly":
                                 window.siyuan.config.editor.readOnly = data.data;
                                 updateEditModeElement();
+                                hideAllElements(["util"]);
                                 break;
                             case "progress":
                                 progressLoading(data);
@@ -112,9 +119,6 @@ class App {
                                 progressBackgroundTask(data.data.tasks);
                                 break;
                             case "refreshtheme":
-                                if (!window.siyuan.config.appearance.customCSS && data.data.theme.indexOf("custom.css") > -1) {
-                                    return;
-                                }
                                 if ((window.siyuan.config.appearance.mode === 1 && window.siyuan.config.appearance.themeDark !== "midnight") || (window.siyuan.config.appearance.mode === 0 && window.siyuan.config.appearance.themeLight !== "daylight")) {
                                     (document.getElementById("themeStyle") as HTMLLinkElement).href = data.data.theme;
                                 } else {
@@ -131,7 +135,6 @@ class App {
                     }
                 }
             }),
-            menus: new Menus()
         };
         fetchPost("/api/system/getConf", {}, response => {
             window.siyuan.config = response.data.conf;
@@ -153,6 +156,7 @@ class App {
             getLocalStorage(() => {
                 fetchGet(`/appearance/langs/${window.siyuan.config.appearance.lang}.json?v=${Constants.SIYUAN_VERSION}`, (lauguages) => {
                     window.siyuan.languages = lauguages;
+                    window.siyuan.menus = new Menus();
                     bootSync();
                     fetchPost("/api/setting/getCloudUser", {}, userResponse => {
                         window.siyuan.user = userResponse.data;
@@ -172,11 +176,14 @@ class App {
 }
 
 new App();
+
 window.openFileByURL = (openURL) => {
-    if (openURL && /^siyuan:\/\/blocks\/\d{14}-\w{7}/.test(openURL)) {
+    if (openURL && isSYProtocol(openURL)) {
+        const isZoomIn = getSearch("focus", openURL) === "1";
         openFileById({
-            id: openURL.substr(16, 22),
-            action:getSearch("focus", openURL) === "1" ? [Constants.CB_GET_ALL, Constants.CB_GET_FOCUS] : [Constants.CB_GET_FOCUS, Constants.CB_GET_CONTEXT]
+            id: getIdFromSYProtocol(openURL),
+            action: isZoomIn ? [Constants.CB_GET_ALL, Constants.CB_GET_FOCUS] : [Constants.CB_GET_FOCUS, Constants.CB_GET_CONTEXT],
+            zoomIn: isZoomIn
         });
         return true;
     }

@@ -15,14 +15,14 @@ export const openByMobile = (uri: string) => {
     }
 };
 
-export const readText = async () => {
+export const readText = () => {
     if ("android" === window.siyuan.config.system.container && window.JSAndroid) {
         return window.JSAndroid.readClipboard();
     }
     return navigator.clipboard.readText();
 };
 
-export const writeText = async (text: string) => {
+export const writeText = (text: string) => {
     let range: Range;
     if (getSelection().rangeCount > 0) {
         range = getSelection().getRangeAt(0).cloneRange();
@@ -37,7 +37,6 @@ export const writeText = async (text: string) => {
             window.webkit.messageHandlers.setClipboard.postMessage(text);
             return;
         }
-
         navigator.clipboard.writeText(text);
     } catch (e) {
         if (window.siyuan.config.system.container === "ios" && window.webkit?.messageHandlers) {
@@ -75,7 +74,7 @@ export const getEventName = () => {
 };
 
 // 区别 mac 上的 ctrl 和 meta
-export const isCtrl = (event: KeyboardEvent) => {
+export const isCtrl = (event: KeyboardEvent | MouseEvent) => {
     if (isMac()) {
         // mac
         if (event.metaKey && !event.ctrlKey) {
@@ -186,6 +185,7 @@ export const getLocalStorage = (cb: () => void) => {
         };
         defaultStorage[Constants.LOCAL_FONTSTYLES] = [];
         defaultStorage[Constants.LOCAL_SEARCHDATA] = {
+            page: 1,
             sort: 0,
             group: 0,
             hasReplace: false,

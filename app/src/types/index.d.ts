@@ -27,6 +27,8 @@ type TOperation =
     | "append"
     | "insertAttrViewBlock"
     | "removeAttrViewBlock"
+    | "addFlashcards"
+    | "removeFlashcards"
 type TBazaarType = "templates" | "icons" | "widgets" | "themes"
 declare module "blueimp-md5"
 
@@ -85,6 +87,7 @@ interface ICard {
 }
 
 interface ISearchOption {
+    page: number
     removed?: boolean  // 移除后需记录搜索内容 https://github.com/siyuan-note/siyuan/issues/7745
     name?: string
     sort: number,  //  0：按块类型（默认），1：按创建时间升序，2：按创建时间降序，3：按更新时间升序，4：按更新时间降序，5：按内容顺序（仅在按文档分组时），6：按相关度升序，7：按相关度降序
@@ -196,7 +199,8 @@ interface ISiyuan {
     backStack?: IBackStack[],
     mobile?: {
         editor?: import("../protyle").Protyle
-        files?: import("../mobile/util/MobileFiles").MobileFiles
+        popEditor?: import("../protyle").Protyle
+        files?: import("../mobile/dock/MobileFiles").MobileFiles
     },
     user?: {
         userId: string
@@ -205,7 +209,6 @@ interface ISiyuan {
         userHomeBImgURL: string
         userIntro: string
         userNickname: string
-        userPaymentSum: string
         userSiYuanProExpireTime: number // -1 终身会员；0 普通用户；> 0 过期时间
         userSiYuanSubscriptionPlan: number // 0 年付订阅/终生；1 教育优惠；2 订阅试用
         userSiYuanSubscriptionType: number // 0 年付；1 终生；2 月付
@@ -233,6 +236,11 @@ interface ISiyuan {
     bookmarkLabel?: string[]
     blockPanels: import("../block/Panel").BlockPanel[],
     dialogs: import("../dialog").Dialog[],
+    viewer?: {
+        destroyed: boolean,
+        show: () => void,
+        destroy: () => void,
+    }
 }
 
 interface IScrollAttr {
@@ -247,13 +255,15 @@ interface IScrollAttr {
 
 interface IOperation {
     action: TOperation, // move， delete 不需要传 data
-    id: string,
+    id?: string,
     data?: string, // updateAttr 时为  { old: IObject, new: IObject }
     parentID?: string   // 为 insertAttrViewBlock 传 avid
     previousID?: string
     retData?: any
     nextID?: string // insert 专享
     srcIDs?: string[] // insertAttrViewBlock 专享
+    deckID?: string // add/removeFlashcards 专享
+    blockIDs?: string[] // add/removeFlashcards 专享
 }
 
 interface IObject {
@@ -281,6 +291,7 @@ declare interface IOpenFileOptions {
     keepCursor?: boolean // file，是否跳转到新 tab 上
     zoomIn?: boolean // 是否缩放
     removeCurrentTab?: boolean // 在当前页签打开时需移除原有页签
+    afterOpen?: () => void // 打开后回调
 }
 
 declare interface ILayoutOptions {
@@ -320,6 +331,7 @@ declare interface IEditor {
     readOnly: boolean;
     listLogicalOutdent: boolean;
     spellcheck: boolean;
+    onlySearchForDoc: boolean;
     katexMacros: string;
     fullWidth: boolean;
     floatWindowMode: number;
@@ -336,7 +348,7 @@ declare interface IEditor {
     codeLigatures: boolean;
     codeTabSpaces: number;
     fontFamily: string;
-    virtualBlockRef: string;
+    virtualBlockRef: boolean;
     virtualBlockRefExclude: string;
     virtualBlockRefInclude: string;
     blockRefDynamicAnchorTextMaxLen: number;
@@ -359,7 +371,6 @@ declare interface IAppearance {
     modeOS: boolean,
     hideStatusBar: boolean,
     nativeEmoji: boolean,
-    customCSS: boolean,
     themeJS: boolean,
     mode: number, // 1 暗黑；0 明亮
     icon: string,

@@ -339,14 +339,14 @@ export const bazaar = {
                 highlightRender(mdElement);
             });
         }
-        readmeElement.style.right = "0";
+        readmeElement.classList.add("config-bazaar__readme--show");
     },
     bindEvent() {
         fetchPost("/api/bazaar/getBazaarTheme", {}, response => {
             bazaar._onBazaar(response, "themes", false);
             bazaar._data.themes = response.data.packages;
         });
-        bazaar.element.addEventListener("click", (event) => {
+        bazaar.element.firstElementChild.addEventListener("click", (event) => {
             let target = event.target as HTMLElement;
             while (target && !target.isEqualNode(bazaar.element)) {
                 const type = target.getAttribute("data-type");
@@ -377,8 +377,7 @@ export const bazaar = {
                     event.stopPropagation();
                     break;
                 } else if (type === "goBack") {
-                    const readmeElement = bazaar.element.querySelector("#configBazaarReadme") as HTMLElement;
-                    readmeElement.style.right = "-100%";
+                    bazaar.element.querySelector("#configBazaarReadme").classList.remove("config-bazaar__readme--show");
                     event.preventDefault();
                     event.stopPropagation();
                     break;

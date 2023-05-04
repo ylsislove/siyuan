@@ -5,6 +5,7 @@ import {Constants} from "../constants";
 import {showMessage} from "../dialog/message";
 import {fetchPost} from "../util/fetch";
 import {escapeHtml} from "../util/escape";
+import {setStorageVal} from "../protyle/util/compatibility";
 
 export const filterMenu = (config: ISearchOption, cb: () => void) => {
     const filterDialog = new Dialog({
@@ -123,7 +124,7 @@ export const filterMenu = (config: ISearchOption, cb: () => void) => {
     <button class="b3-button b3-button--cancel">${window.siyuan.languages.cancel}</button><div class="fn__space"></div>
     <button class="b3-button b3-button--text">${window.siyuan.languages.confirm}</button>
 </div>`,
-        width: isMobile() ? "90vw" : "520px",
+        width: isMobile() ? "92vw" : "520px",
     });
     const btnsElement = filterDialog.element.querySelectorAll(".b3-button");
     btnsElement[0].addEventListener("click", () => {
@@ -313,7 +314,7 @@ export const moreMenu = async (config: ISearchOption,
     <button class="b3-button b3-button--cancel">${window.siyuan.languages.cancel}</button><div class="fn__space"></div>
     <button class="b3-button b3-button--text">${window.siyuan.languages.confirm}</button>
 </div>`,
-                width: isMobile() ? "80vw" : "520px",
+                width: isMobile() ? "92vw" : "520px",
             });
             const btnsElement = saveDialog.element.querySelectorAll(".b3-button");
             saveDialog.bindInput(saveDialog.element.querySelector("input"), () => {
@@ -335,9 +336,12 @@ export const moreMenu = async (config: ISearchOption,
                     config.k = (element.querySelector("#searchInput") as HTMLInputElement).value;
                     config.r = (element.querySelector("#replaceInput") as HTMLInputElement).value;
                 }
+                config.removed = false;
                 const criterion = config;
                 criterion.name = value;
                 criteriaData.push(Object.assign({}, criterion));
+                window.siyuan.storage[Constants.LOCAL_SEARCHDATA] = Object.assign({}, config);
+                setStorageVal(Constants.LOCAL_SEARCHDATA, window.siyuan.storage[Constants.LOCAL_SEARCHDATA]);
                 fetchPost("/api/storage/setCriterion", {criterion}, () => {
                     saveDialog.destroy();
                     const criteriaElement = element.querySelector("#criteria");
@@ -370,4 +374,12 @@ export const initCriteriaMenu = (element: HTMLElement, data: ISearchOption[]) =>
             element.classList.remove("fn__none");
         }
     });
+};
+
+export const getKeyByLiElement = (element: HTMLElement) => {
+    const keys: string[] = [];
+    element.querySelectorAll("mark").forEach(item => {
+        keys.push(item.textContent);
+    });
+    return [...new Set(keys)].join(" ");
 };

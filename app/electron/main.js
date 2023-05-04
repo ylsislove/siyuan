@@ -357,13 +357,15 @@ const boot = () => {
     Menu.setApplicationMenu(menu);
     // 当前页面链接使用浏览器打开
     currentWindow.webContents.on("will-navigate", (event, url) => {
-        const currentURL = new URL(event.sender.getURL());
-        if (url.startsWith(getServer(currentURL.port))) {
-            return;
-        }
+        if (event.sender) {
+            const currentURL = new URL(event.sender.getURL());
+            if (url.startsWith(getServer(currentURL.port))) {
+                return;
+            }
 
-        event.preventDefault();
-        shell.openExternal(url);
+            event.preventDefault();
+            shell.openExternal(url);
+        }
     });
 
     currentWindow.on("close", (event) => {
@@ -711,7 +713,7 @@ app.whenReady().then(() => {
             }
         });
         if (!foundWorkspace) {
-            initKernel(data.workspace, "", data.lang).then((isSucc) => {
+            initKernel(data.workspace, "", "").then((isSucc) => {
                 if (isSucc) {
                     boot();
                 }
@@ -721,6 +723,10 @@ app.whenReady().then(() => {
     ipcMain.on("siyuan-init", async (event, data) => {
         const exitWS = workspaces.find(item => {
             if (data.id === item.id && item.workspaceDir) {
+                if (item.tray && "win32" === process.platform || "linux" === process.platform) {
+                    // Tray menu text does not change with the appearance language https://github.com/siyuan-note/siyuan/issues/7935
+                    resetTrayMenu(item.tray, data.languages, item.browserWindow);
+                }
                 return true;
             }
         });
@@ -786,6 +792,9 @@ app.whenReady().then(() => {
         BrowserWindow.getAllWindows().forEach(item => {
             item.webContents.send("siyuan-send_windows", data);
         });
+    });
+    ipcMain.on("siyuan-auto-launch", (event, data) => {
+        app.setLoginItemSettings({openAtLogin: data.openAtLogin});
     });
 
     if (firstOpen) {

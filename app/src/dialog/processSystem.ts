@@ -14,6 +14,7 @@ import {confirmDialog} from "./confirmDialog";
 import {escapeHtml} from "../util/escape";
 import {getWorkspaceName} from "../util/noRelyPCFunction";
 import {needSubscribe} from "../util/needSubscribe";
+import {redirectToCheckAuth} from "../util/pathName";
 
 export const lockScreen = () => {
     if (window.siyuan.config.readonly) {
@@ -21,7 +22,7 @@ export const lockScreen = () => {
     }
     /// #if BROWSER
     fetchPost("/api/system/logoutAuth", {}, () => {
-        window.location.href = `/check-auth?url=${window.location.href}`;
+        redirectToCheckAuth();
     });
     /// #else
     ipcRenderer.send(Constants.SIYUAN_SEND_WINDOWS, {cmd: "lockscreen"});
@@ -29,32 +30,31 @@ export const lockScreen = () => {
 };
 
 export const kernelError = () => {
+    if (document.querySelector("#errorLog")) {
+        return;
+    }
     let iosReStart = "";
     if (window.siyuan.config.system.container === "ios" && window.webkit?.messageHandlers) {
         iosReStart = `<div class="fn__hr"></div><div class="fn__flex"><div class="fn__flex-1"></div><button class="b3-button">${window.siyuan.languages.retry}</button></div>`;
     }
-    const html = `<div class="b3-dialog__scrim"></div>
-<div class="b3-dialog__container" style="width: ${isMobile() ? "80vw" : "520px"}">
-    <div class="b3-dialog__header" onselectstart="return false;">💔 ${window.siyuan.languages.kernelFault0} <small>v${Constants.SIYUAN_VERSION}</small></div>
-    <div class="b3-dialog__content">
-        <p>${window.siyuan.languages.kernelFault1}</p>
-        <div class="fn__hr"></div>
-        <p>${window.siyuan.languages.kernelFault2}</p>
-        ${iosReStart}
-    </div>
-</div>`;
-    let logElement = document.getElementById("errorLog");
-    if (logElement) {
-        logElement.innerHTML = html;
-    } else {
-        document.body.insertAdjacentHTML("beforeend", `<div id="errorLog" class="b3-dialog b3-dialog--open">${html}</div>`);
-        logElement = document.getElementById("errorLog");
-    }
-
-    const restartElement = logElement.querySelector(".b3-button");
-    if (restartElement && window.webkit?.messageHandlers) {
+    const dialog = new Dialog({
+        disableClose: true,
+        title: `💔 ${window.siyuan.languages.kernelFault0} <small>v${Constants.SIYUAN_VERSION}</small>`,
+        width: isMobile() ? "92vw" : "520px",
+        content: `<div class="b3-dialog__content">
+<div class="ft__breakword">
+    <div>${window.siyuan.languages.kernelFault1}</div>
+    <div class="fn__hr"></div>
+    <div>${window.siyuan.languages.kernelFault2}</div>
+    ${iosReStart}
+</div>
+</div>`
+    });
+    dialog.element.id = "errorLog";
+    const restartElement = dialog.element.querySelector(".b3-button");
+    if (restartElement) {
         restartElement.addEventListener("click", () => {
-            logElement.remove();
+            dialog.destroy();
             window.webkit.messageHandlers.startKernelFast.postMessage("startKernelFast");
         });
     }
@@ -132,7 +132,7 @@ export const transactionError = () => {
     <div class="fn__space"></div>
     <button class="b3-button">${window.siyuan.languages.rebuildIndex}</button>
 </div>`,
-        width: isMobile() ? "80vw" : "520px",
+        width: isMobile() ? "92vw" : "520px",
     });
     const btnsElement = dialog.element.querySelectorAll(".b3-button");
     btnsElement[0].addEventListener("click", () => {
@@ -223,7 +223,7 @@ export const bootSync = () => {
     fetchPost("/api/sync/getBootSync", {}, response => {
         if (response.code === 1) {
             const dialog = new Dialog({
-                width: isMobile() ? "80vw" : "50vw",
+                width: isMobile() ? "92vw" : "50vw",
                 title: "🌩️ " + window.siyuan.languages.bootSyncFailed,
                 content: `<div class="b3-dialog__content">${response.msg}</div>
 <div class="b3-dialog__action">

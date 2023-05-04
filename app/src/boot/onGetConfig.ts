@@ -25,6 +25,7 @@ import {setTabPosition} from "../window/setHeader";
 import {initBar} from "../layout/topBar";
 import {setProxy} from "../config/util/setProxy";
 import {openChangelog} from "./openChangelog";
+import {getIdFromSYProtocol, isSYProtocol} from "../util/pathName";
 
 const matchKeymap = (keymap: Record<string, IKeymapItem>, key1: "general" | "editor", key2?: "general" | "insert" | "heading" | "list" | "table") => {
     if (key1 === "general") {
@@ -135,9 +136,6 @@ export const onGetConfig = (isStart: boolean) => {
         try {
             JSONToLayout(isStart);
             openChangelog();
-            if (window.JSAndroid) {
-                window.openFileByURL(window.JSAndroid.getBlockURL());
-            }
         } catch (e) {
             resetLayout();
         }
@@ -212,10 +210,10 @@ export const initWindow = () => {
     });
     if (!isWindow()) {
         ipcRenderer.on(Constants.SIYUAN_OPENURL, (event, url) => {
-            if (!/^siyuan:\/\/blocks\/\d{14}-\w{7}/.test(url)) {
+            if (!isSYProtocol(url)) {
                 return;
             }
-            const id = url.substr(16, 22);
+            const id = getIdFromSYProtocol(url);
             fetchPost("/api/block/checkBlockExist", {id}, existResponse => {
                 if (existResponse.data) {
                     openFileById({
@@ -451,12 +449,12 @@ ${response.data.replace("%pages", "<span class=totalPages></span>").replace("%pa
     /// #else
     if (!isWindow()) {
         document.querySelector(".toolbar").classList.add("toolbar--browser");
-        window.addEventListener("beforeunload", () => {
-            exportLayout(false);
-        }, false);
-        window.addEventListener("pagehide", () => {
-            exportLayout(false);
-        }, false);
     }
+    window.addEventListener("beforeunload", () => {
+        exportLayout(false);
+    }, false);
+    window.addEventListener("pagehide", () => {
+        exportLayout(false);
+    }, false);
     /// #endif
 };

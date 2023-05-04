@@ -63,7 +63,6 @@ import {BlockPanel} from "../../block/Panel";
 import * as dayjs from "dayjs";
 import {highlightRender} from "../markdown/highlightRender";
 import {countBlockWord} from "../../layout/status";
-import {openMobileFileById} from "../../mobile/editor";
 import {moveToDown, moveToUp} from "./move";
 import {pasteAsPlainText} from "../util/paste";
 import {preventScroll} from "../scroll/preventScroll";
@@ -441,14 +440,10 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             if (!protyle.block.showAll) {
                 const ids = protyle.path.split("/");
                 if (ids.length > 2) {
-                    /// #if MOBILE
-                    openMobileFileById(ids[ids.length - 2], [Constants.CB_GET_FOCUS, Constants.CB_GET_SCROLL]);
-                    /// #else
                     openFileById({
                         id: ids[ids.length - 2],
                         action: [Constants.CB_GET_FOCUS, Constants.CB_GET_SCROLL]
                     });
-                    /// #endif
                 }
             } else {
                 zoomOut(protyle, protyle.block.parent2ID, nodeElement.getAttribute("data-node-id"));
@@ -515,7 +510,8 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             return;
         }
         // hint: 上下、回车选择
-        if (!event.altKey && !event.shiftKey && !isCtrl(event) && (event.key.indexOf("Arrow") > -1 || event.key === "Enter") &&
+        if (!event.altKey && !event.shiftKey &&
+            ((event.key.indexOf("Arrow") > -1 && !isCtrl(event)) || event.key === "Enter") &&
             !protyle.hint.element.classList.contains("fn__none") && protyle.hint.select(event, protyle)) {
             event.stopPropagation();
             event.preventDefault();
@@ -1009,7 +1005,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             if (selectElement.length === 0) {
                 selectElement.push(nodeElement);
             }
-            quickMakeCard(selectElement);
+            quickMakeCard(protyle, selectElement);
             event.preventDefault();
             event.stopPropagation();
             return true;
@@ -1270,7 +1266,8 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             event.stopPropagation();
             return true;
         }
-        if (matchHotKey(window.siyuan.config.keymap.editor.insert.code.custom, event) && nodeElement.getAttribute("data-type") !== "NodeCodeBlock") {
+        if (matchHotKey(window.siyuan.config.keymap.editor.insert.code.custom, event) &&
+            !["NodeCodeBlock", "NodeHeading"].includes(nodeElement.getAttribute("data-type"))) {
             const id = nodeElement.getAttribute("data-node-id");
             const html = nodeElement.outerHTML;
             const editElement = getContenteditableElement(nodeElement);
@@ -1284,8 +1281,8 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             event.stopPropagation();
             return true;
         }
-        // toolbar action
 
+        // toolbar action
         if (matchHotKey(window.siyuan.config.keymap.editor.insert.lastUsed.custom, event)) {
             protyle.toolbar.range = range;
             fontEvent(protyle);
@@ -1646,7 +1643,6 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
         }
         /// #endif
 
-        /// #if !BROWSER
         if (matchHotKey("⇧⌘V", event)) {
             event.returnValue = false;
             event.preventDefault();
@@ -1655,6 +1651,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             return;
         }
 
+        /// #if !BROWSER
         if (matchHotKey(window.siyuan.config.keymap.editor.general.showInFolder.custom, event)) {
             const aElement = hasClosestByAttribute(range.startContainer, "data-type", "a");
             if (aElement) {

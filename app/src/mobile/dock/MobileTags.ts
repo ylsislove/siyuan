@@ -45,7 +45,7 @@ export class MobileTags {
     <button class="b3-button b3-button--cancel">${window.siyuan.languages.cancel}</button><div class="fn__space"></div>
     <button class="b3-button b3-button--text">${window.siyuan.languages.confirm}</button>
 </div>`,
-                            width: "80vw",
+                            width: "92vw",
                         });
                         const btnsElement = dialog.element.querySelectorAll(".b3-button");
                         btnsElement[0].addEventListener("click", () => {
@@ -66,9 +66,20 @@ export class MobileTags {
                         });
                     }
                 } else {
-                    const searchOption = Object.assign({}, window.siyuan.storage[Constants.LOCAL_SEARCHDATA]);
-                    searchOption.k = `#${element.getAttribute("data-label")}#`
-                    popSearch(searchOption);
+                    const searchOption = window.siyuan.storage[Constants.LOCAL_SEARCHDATA];
+                    popSearch({
+                        removed: searchOption.removed,
+                        sort: searchOption.sort,
+                        group: searchOption.group,
+                        hasReplace: false,
+                        method: 0,
+                        hPath: "",
+                        idPath: [],
+                        k: `#${element.getAttribute("data-label")}#`,
+                        r: "",
+                        page: 1,
+                        types: Object.assign({}, searchOption.types)
+                    });
                 }
             },
             topExtHTML: window.siyuan.config.readonly ? undefined : '<span class="b3-list-item__action" data-type="edit"><svg><use xlink:href="#iconEdit"></use></svg></span><span class="b3-list-item__action" data-type="remove"><svg><use xlink:href="#iconTrashcan"></use></svg></span>'

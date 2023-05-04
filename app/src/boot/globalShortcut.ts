@@ -46,7 +46,7 @@ import {Backlink} from "../layout/dock/Backlink";
 import {webFrame} from "electron";
 /// #endif
 import {openHistory} from "../history/history";
-import {openCard} from "../card/openCard";
+import {openCard, openCardByData} from "../card/openCard";
 import {lockScreen} from "../dialog/processSystem";
 import {isWindow} from "../util/functions";
 import {reloadProtyle} from "../protyle/util/reload";
@@ -424,6 +424,7 @@ export const globalShortcut = () => {
                 window.siyuan.ctrlIsPressed = false;
             }
         }
+
         if (!event.altKey && event.shiftKey && !isCtrl(event)) {
             if (event.key === "Shift") {
                 window.siyuan.shiftIsPressed = true;
@@ -431,6 +432,7 @@ export const globalShortcut = () => {
                 window.siyuan.shiftIsPressed = false;
             }
         }
+
         if (event.altKey && !event.shiftKey && !isCtrl(event)) {
             if (event.key === "Alt") {
                 window.siyuan.altIsPressed = true;
@@ -443,6 +445,7 @@ export const globalShortcut = () => {
             dialogArrow(switchDialog.element, event);
             return;
         }
+
         const isTabWindow = isWindow();
         if (event.ctrlKey && !event.metaKey && event.key === "Tab") {
             if (switchDialog && switchDialog.element.parentElement) {
@@ -549,6 +552,20 @@ export const globalShortcut = () => {
             event.preventDefault();
             return;
         }
+
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            const viewCardsDialog = window.siyuan.dialogs.find(item => {
+                if (item.element.getAttribute("data-key") === "viewCards") {
+                    return true;
+                }
+            });
+            if (viewCardsDialog) {
+                viewCardsDialog.element.dispatchEvent(new CustomEvent("click", {detail: event.key.toLowerCase()}));
+                event.preventDefault();
+                return;
+            }
+        }
+
         /// #if !BROWSER
         if (matchHotKey("⌘=", event) && !hasClosestByClassName(target, "pdf__outer")) {
             Constants.SIZE_ZOOM.find((item, index) => {
@@ -643,9 +660,6 @@ export const globalShortcut = () => {
         }
         if (!isTabWindow && matchHotKey(window.siyuan.config.keymap.general.dailyNote.custom, event)) {
             newDailyNote();
-            if (document.activeElement) {
-                (document.activeElement as HTMLElement).blur();
-            }
             event.stopPropagation();
             event.preventDefault();
             return;
@@ -1078,6 +1092,13 @@ const editKeydown = (event: KeyboardEvent) => {
         event.preventDefault();
         return true;
     }
+    if (!isFileFocus && matchHotKey(window.siyuan.config.keymap.editor.general.spaceRepetition.custom, event)) {
+        fetchPost("/api/riff/getTreeRiffDueCards", {rootID: protyle.block.rootID}, (response) => {
+            openCardByData(response.data, "doc", protyle.block.rootID, protyle.title.editElement.textContent);
+        });
+        event.preventDefault();
+        return true;
+    }
     if (!isFileFocus && matchHotKey(window.siyuan.config.keymap.general.move.custom, event)) {
         let range: Range;
         let nodeElement: false | HTMLElement;
@@ -1174,7 +1195,7 @@ const fileTreeKeydown = (event: KeyboardEvent) => {
     }
     const liElements = Array.from(files.element.querySelectorAll(".b3-list-item--focus"));
     if (liElements.length === 0) {
-        if (event.key.startsWith("Arrow")) {
+        if (event.key.startsWith("Arrow") && !isCtrl(event)) {
             const liElement = files.element.querySelector(".b3-list-item");
             if (liElement) {
                 liElement.classList.add("b3-list-item--focus");
@@ -1190,6 +1211,20 @@ const fileTreeKeydown = (event: KeyboardEvent) => {
     const notebookId = topULElement.getAttribute("data-url");
     const pathString = liElements[0].getAttribute("data-path");
     const isFile = liElements[0].getAttribute("data-type") === "navigation-file";
+
+    if (matchHotKey(window.siyuan.config.keymap.editor.general.spaceRepetition.custom, event)) {
+        if (isFile) {
+            const id = liElements[0].getAttribute("data-node-id");
+            fetchPost("/api/riff/getTreeRiffDueCards", {rootID: id}, (response) => {
+                openCardByData(response.data, "doc", id, getDisplayName(liElements[0].getAttribute("data-name"), false, true));
+            });
+        } else {
+            fetchPost("/api/riff/getNotebookRiffDueCards", {notebook: notebookId}, (response) => {
+                openCardByData(response.data, "notebook", notebookId, getNotebookName(notebookId));
+            });
+        }
+    }
+
     if (matchHotKey(window.siyuan.config.keymap.editor.general.rename.custom, event)) {
         window.siyuan.menus.menu.remove();
         rename({
@@ -1301,7 +1336,7 @@ const fileTreeKeydown = (event: KeyboardEvent) => {
             }
         }
         return;
-    } else {
+    } else if (!isCtrl(event)) {
         files.element.querySelector('[select-end="true"]')?.removeAttribute("select-end");
         files.element.querySelector('[select-start="true"]')?.removeAttribute("select-start");
         if ((event.key === "ArrowRight" && !liElements[0].querySelector(".b3-list-item__arrow--open") && !liElements[0].querySelector(".b3-list-item__toggle").classList.contains("fn__hidden")) ||
